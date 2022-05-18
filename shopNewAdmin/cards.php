@@ -1,15 +1,297 @@
+<?php
+session_start();
+require("connection.php");
+$sid = $_SESSION['cid'];
+$sql=mysqli_query($con,"SELECT oid,pimg,pname,amount,pstatus,cname,city,flatno,landmark,pincode,contact from custorder co,address a,product p where p.pid=co.pid and a.cid=co.cid and OorC = 1 and p.sid = $sid and a.ano = co.aid ");
+
+// 
+
+?>
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
+    <title>Bootstrap Order Details Table with Search Filter</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <style>
+    body {
+        color: #566787;
+        background: #f5f5f5;
+        font-family: 'Varela Round', sans-serif;
+        font-size: 13px;
+    }
 
-    <title>SB Admin 2 - Dashboard</title>
+    .table-responsive {
+        margin: 30px 0;
+    }
+
+    .table-wrapper {
+        min-width: 1000px;
+        background: #fff;
+        padding: 20px 25px;
+        border-radius: 3px;
+        box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+    }
+
+    .table-wrapper .btn {
+        float: right;
+        color: #333;
+        background-color: #fff;
+        border-radius: 3px;
+        border: none;
+        outline: none !important;
+        margin-left: 10px;
+    }
+
+    .table-wrapper .btn:hover {
+        color: #333;
+        background: #f2f2f2;
+    }
+
+    .table-wrapper .btn.btn-primary {
+        color: #fff;
+        background: #03A9F4;
+    }
+
+    .table-wrapper .btn.btn-primary:hover {
+        background: #03a3e7;
+    }
+
+    .table-title .btn {
+        font-size: 13px;
+        border: none;
+    }
+
+    .table-title .btn i {
+        float: left;
+        font-size: 21px;
+        margin-right: 5px;
+    }
+
+    .table-title .btn span {
+        float: left;
+        margin-top: 2px;
+    }
+
+    .table-title {
+        color: #fff;
+        background: #4b5366;
+        padding: 16px 25px;
+        margin: -20px -25px 10px;
+        border-radius: 3px 3px 0 0;
+    }
+
+    .table-title h2 {
+        margin: 5px 0 0;
+        font-size: 24px;
+    }
+
+    .show-entries select.form-control {
+        width: 60px;
+        margin: 0 5px;
+    }
+
+    .table-filter .filter-group {
+        float: right;
+        margin-left: 15px;
+    }
+
+    .table-filter input,
+    .table-filter select {
+        height: 34px;
+        border-radius: 3px;
+        border-color: #ddd;
+        box-shadow: none;
+    }
+
+    .table-filter {
+        padding: 5px 0 15px;
+        border-bottom: 1px solid #e9e9e9;
+        margin-bottom: 5px;
+    }
+
+    .table-filter .btn {
+        height: 34px;
+    }
+
+    .table-filter label {
+        font-weight: normal;
+        margin-left: 10px;
+    }
+
+    .table-filter select,
+    .table-filter input {
+        display: inline-block;
+        margin-left: 5px;
+    }
+
+    .table-filter input {
+        width: 200px;
+        display: inline-block;
+    }
+
+    .filter-group select.form-control {
+        width: 110px;
+    }
+
+    .filter-icon {
+        float: right;
+        margin-top: 7px;
+    }
+
+    .filter-icon i {
+        font-size: 18px;
+        opacity: 0.7;
+    }
+
+    table.table tr th,
+    table.table tr td {
+        border-color: #e9e9e9;
+        padding: 12px 15px;
+        vertical-align: middle;
+    }
+
+    table.table tr th:first-child {
+        width: 60px;
+    }
+
+    table.table tr th:last-child {
+        width: 80px;
+    }
+
+    table.table-striped tbody tr:nth-of-type(odd) {
+        background-color: #fcfcfc;
+    }
+
+    table.table-striped.table-hover tbody tr:hover {
+        background: #f5f5f5;
+    }
+
+    table.table th i {
+        font-size: 13px;
+        margin: 0 5px;
+        cursor: pointer;
+    }
+
+    table.table td a {
+        font-weight: bold;
+        color: #566787;
+        display: inline-block;
+        text-decoration: none;
+    }
+
+    table.table td a:hover {
+        color: #2196F3;
+    }
+
+    table.table td a.view {
+        width: 30px;
+        height: 30px;
+        color: #2196F3;
+        border: 2px solid;
+        border-radius: 30px;
+        text-align: center;
+    }
+
+    table.table td a.view i {
+        font-size: 22px;
+        margin: 2px 0 0 1px;
+    }
+
+    table.table .avatar {
+        border-radius: 50%;
+        vertical-align: middle;
+        margin-right: 10px;
+    }
+
+    .status {
+        font-size: 30px;
+        margin: 2px 2px 0 0;
+        display: inline-block;
+        vertical-align: middle;
+        line-height: 10px;
+    }
+
+    .text-success {
+        color: #10c469;
+    }
+
+    .text-info {
+        color: #62c9e8;
+    }
+
+    .text-warning {
+        color: #FFC107;
+    }
+
+    .text-danger {
+        color: #ff5b5b;
+    }
+
+    .pagination {
+        float: right;
+        margin: 0 0 5px;
+    }
+
+    .pagination li a {
+        border: none;
+        font-size: 13px;
+        min-width: 30px;
+        min-height: 30px;
+        color: #999;
+        margin: 0 2px;
+        line-height: 30px;
+        border-radius: 2px !important;
+        text-align: center;
+        padding: 0 6px;
+    }
+
+    .pagination li a:hover {
+        color: #666;
+    }
+
+    .pagination li.active a {
+        background: #03A9F4;
+    }
+
+    .pagination li.active a:hover {
+        background: #0397d6;
+    }
+
+    .pagination li.disabled i {
+        color: #ccc;
+    }
+
+    .pagination li i {
+        font-size: 16px;
+        padding-top: 6px
+    }
+
+    .hint-text {
+        float: left;
+        margin-top: 10px;
+        font-size: 13px;
+    }
+    </style>
+    <script>
+    $(document).ready(function() {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+    </script>
+
+
+    <title>shop Admim</title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -42,7 +324,7 @@
             <hr class="sidebar-divider my-0">
 
             <!-- Nav Item - Dashboard -->
-            <li class="nav-item active">
+            <li class="nav-item">
                 <a class="nav-link" href="index.html">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
@@ -57,17 +339,18 @@
             </div>
 
             <!-- Nav Item - Pages Collapse Menu -->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
-                    aria-expanded="true" aria-controls="collapseTwo">
+            <li class="nav-item active">
+                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true"
+                    aria-controls="collapseTwo">
                     <i class="fas fa-fw fa-cog"></i>
                     <span>Components</span>
                 </a>
-                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo"
+                    data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Custom Components:</h6>
-                        <a class="collapse-item" href="AddProduct.html">AddProduct</a>
-                        <a class="collapse-item" href="cards.php">Cards</a>
+                        <a class="collapse-item" href="buttons.html">Buttons</a>
+                        <a class="collapse-item active" href="cards.php">Cards</a>
                     </div>
                 </div>
             </li>
@@ -140,13 +423,6 @@
             <!-- Sidebar Toggler (Sidebar) -->
             <div class="text-center d-none d-md-inline">
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>
-            </div>
-
-            <!-- Sidebar Message -->
-            <div class="sidebar-card d-none d-lg-flex">
-                <img class="sidebar-card-illustration mb-2" src="img/undraw_rocket.svg" alt="...">
-                <p class="text-center mb-2"><strong>SB Admin Pro</strong> is packed with premium features, components, and more!</p>
-                <a class="btn btn-success btn-sm" href="https://startbootstrap.com/theme/sb-admin-pro">Upgrade to Pro!</a>
             </div>
 
         </ul>
@@ -274,8 +550,7 @@
                                 </h6>
                                 <a class="dropdown-item d-flex align-items-center" href="#">
                                     <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="img/undraw_profile_1.svg"
-                                            alt="...">
+                                        <img class="rounded-circle" src="img/undraw_profile_1.svg" alt="...">
                                         <div class="status-indicator bg-success"></div>
                                     </div>
                                     <div class="font-weight-bold">
@@ -286,8 +561,7 @@
                                 </a>
                                 <a class="dropdown-item d-flex align-items-center" href="#">
                                     <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="img/undraw_profile_2.svg"
-                                            alt="...">
+                                        <img class="rounded-circle" src="img/undraw_profile_2.svg" alt="...">
                                         <div class="status-indicator"></div>
                                     </div>
                                     <div>
@@ -298,8 +572,7 @@
                                 </a>
                                 <a class="dropdown-item d-flex align-items-center" href="#">
                                     <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="img/undraw_profile_3.svg"
-                                            alt="...">
+                                        <img class="rounded-circle" src="img/undraw_profile_3.svg" alt="...">
                                         <div class="status-indicator bg-warning"></div>
                                     </div>
                                     <div>
@@ -331,8 +604,7 @@
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <span class="mr-2 d-none d-lg-inline text-gray-600 small">Douglas McGee</span>
-                                <img class="img-profile rounded-circle"
-                                    src="img/undraw_profile.svg">
+                                <img class="img-profile rounded-circle" src="img/undraw_profile.svg">
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
@@ -367,12 +639,9 @@
 
                     <!-- Page Heading -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
-                        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
-                                class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
+                        <h1 class="h3 mb-0 text-gray-800">Cards</h1>
                     </div>
 
-                    <!-- Content Row -->
                     <div class="row">
 
                         <!-- Earnings (Monthly) Card Example -->
@@ -393,7 +662,7 @@
                             </div>
                         </div>
 
-                        <!-- Earnings (Monthly) Card Example -->
+                        <!-- Earnings (Annual) Card Example -->
                         <div class="col-xl-3 col-md-6 mb-4">
                             <div class="card border-left-success shadow h-100 py-2">
                                 <div class="card-body">
@@ -411,7 +680,7 @@
                             </div>
                         </div>
 
-                        <!-- Earnings (Monthly) Card Example -->
+                        <!-- Tasks Card Example -->
                         <div class="col-xl-3 col-md-6 mb-4">
                             <div class="card border-left-info shadow h-100 py-2">
                                 <div class="card-body">
@@ -459,300 +728,182 @@
                         </div>
                     </div>
 
-                    <!-- Content Row -->
 
-                    <div class="row">
-
-                        <!-- Area Chart -->
-                        <div class="col-xl-8 col-lg-7">
-                            <div class="card shadow mb-4">
-                                <!-- Card Header - Dropdown -->
-                                <div
-                                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                    <h6 class="m-0 font-weight-bold text-primary">Earnings Overview</h6>
-                                    <div class="dropdown no-arrow">
-                                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                                        </a>
-                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                                            aria-labelledby="dropdownMenuLink">
-                                            <div class="dropdown-header">Dropdown Header:</div>
-                                            <a class="dropdown-item" href="#">Action</a>
-                                            <a class="dropdown-item" href="#">Another action</a>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item" href="#">Something else here</a>
+                    <div class="container-fluid">
+                        <div class="table-responsive">
+                            <div class="table-wrapper">
+                                <div class="table-title">
+                                    <div class="row">
+                                        <div class="col-sm-4">
+                                            <h2>Order <b>Details</b></h2>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <a href="#" class="btn btn-primary"><i class="material-icons">&#xE863;</i>
+                                                <span>Refresh List</span></a>
+                                            <a href="#" class="btn btn-secondary"><i class="material-icons">&#xE24D;</i>
+                                                <span>Export to Excel</span></a>
                                         </div>
                                     </div>
                                 </div>
-                                <!-- Card Body -->
-                                <div class="card-body">
-                                    <div class="chart-area">
-                                        <canvas id="myAreaChart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Pie Chart -->
-                        <div class="col-xl-4 col-lg-5">
-                            <div class="card shadow mb-4">
-                                <!-- Card Header - Dropdown -->
-                                <div
-                                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                    <h6 class="m-0 font-weight-bold text-primary">Revenue Sources</h6>
-                                    <div class="dropdown no-arrow">
-                                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                                        </a>
-                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                                            aria-labelledby="dropdownMenuLink">
-                                            <div class="dropdown-header">Dropdown Header:</div>
-                                            <a class="dropdown-item" href="#">Action</a>
-                                            <a class="dropdown-item" href="#">Another action</a>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item" href="#">Something else here</a>
+                                <div class="table-filter">
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <div class="show-entries">
+                                                <span>Show</span>
+                                                <select class="form-control">
+                                                    <option>5</option>
+                                                    <option>10</option>
+                                                    <option>15</option>
+                                                    <option>20</option>
+                                                </select>
+                                                <span>entries</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <button type="button" class="btn btn-primary"><i
+                                                    class="fa fa-search"></i></button>
+                                            <div class="filter-group">
+                                                <label>Name</label>
+                                                <input type="text" class="form-control">
+                                            </div>
+                                            <div class="filter-group">
+                                                <label>Location</label>
+                                                <select class="form-control">
+                                                    <option>All</option>
+                                                    <option>Berlin</option>
+                                                    <option>London</option>
+                                                    <option>Madrid</option>
+                                                    <option>New York</option>
+                                                    <option>Paris</option>
+                                                </select>
+                                            </div>
+                                            <div class="filter-group">
+                                                <label>Status</label>
+                                                <select class="form-control">
+                                                    <option>Any</option>
+                                                    <option>Delivered</option>
+                                                    <option>Shipped</option>
+                                                    <option>Pending</option>
+                                                    <option>Cancelled</option>
+                                                </select>
+                                            </div>
+                                            <span class="filter-icon"><i class="fa fa-filter"></i></span>
                                         </div>
                                     </div>
                                 </div>
-                                <!-- Card Body -->
-                                <div class="card-body">
-                                    <div class="chart-pie pt-4 pb-2">
-                                        <canvas id="myPieChart"></canvas>
-                                    </div>
-                                    <div class="mt-4 text-center small">
-                                        <span class="mr-2">
-                                            <i class="fas fa-circle text-primary"></i> Direct
-                                        </span>
-                                        <span class="mr-2">
-                                            <i class="fas fa-circle text-success"></i> Social
-                                        </span>
-                                        <span class="mr-2">
-                                            <i class="fas fa-circle text-info"></i> Referral
-                                        </span>
-                                    </div>
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>Pname</th>
+                                            <th>Customer</th>
+                                            <th>Address</th>
+                                            <th>contact</th>
+                                            <th>Pay Status</th>
+                                            <th>Net Amount</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+while($row=mysqli_fetch_assoc($sql)){
+    // city,flatno,landmark,pincode
+    $Adderss = "city ".$row['city']."<br>".$row['landmark']."<br>".'flatNo'.$row['flatno']." India"." -".$row['pincode'];
+?>
+                                        <tr>
+                                      <td>  <div><img
+                                src="./productImage/<?php echo $row['pimg'] ?>"
+                                width="100" height="100" alt="" id="image"></div></td>
+                                <td><a href="#"><?php echo $row['pname'] ?></a></td>
+                                            <td><a href="#"><?php echo $row['cname'] ?></a></td>
+                                            <td><?php echo $Adderss ?></td>
+                                            <td><?php echo $row['contact'] ?></td>
+                                            <td><?php echo $row['pstatus']==1?'Payment Done':'Payment Not Done'?></td>
+                                            <td><?php echo $row['amount'] ?></td>
+                                            <td><a href="#" class="view" title="View Details" data-toggle="tooltip"><i
+                                                        class="material-icons">&#xE5C8;</i></a></td>
+                                        </tr>
+
+                                        <?php
+
+}
+?>
+
+                                    </tbody>
+                                </table>
+                                <div class="clearfix">
+                                    <div class="hint-text">Showing <b>5</b> out of <b>25</b> entries</div>
+                                    <ul class="pagination">
+                                        <li class="page-item disabled"><a href="#">Previous</a></li>
+                                        <li class="page-item"><a href="#" class="page-link">1</a></li>
+                                        <!-- <li class="page-item"><a href="#" class="page-link">2</a></li>
+                                        <li class="page-item"><a href="#" class="page-link">3</a></li>
+                                        <li class="page-item active"><a href="#" class="page-link">4</a></li>
+                                        <li class="page-item"><a href="#" class="page-link">5</a></li>
+                                        <li class="page-item"><a href="#" class="page-link">6</a></li>
+                                        <li class="page-item"><a href="#" class="page-link">7</a></li> -->
+                                        <li class="page-item"><a href="#" class="page-link">Next</a></li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Content Row -->
-                    <div class="row">
 
-                        <!-- Content Column -->
-                        <div class="col-lg-6 mb-4">
 
-                            <!-- Project Card Example -->
-                            <div class="card shadow mb-4">
-                                <div class="card-header py-3">
-                                    <h6 class="m-0 font-weight-bold text-primary">Projects</h6>
-                                </div>
-                                <div class="card-body">
-                                    <h4 class="small font-weight-bold">Server Migration <span
-                                            class="float-right">20%</span></h4>
-                                    <div class="progress mb-4">
-                                        <div class="progress-bar bg-danger" role="progressbar" style="width: 20%"
-                                            aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                    <h4 class="small font-weight-bold">Sales Tracking <span
-                                            class="float-right">40%</span></h4>
-                                    <div class="progress mb-4">
-                                        <div class="progress-bar bg-warning" role="progressbar" style="width: 40%"
-                                            aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                    <h4 class="small font-weight-bold">Customer Database <span
-                                            class="float-right">60%</span></h4>
-                                    <div class="progress mb-4">
-                                        <div class="progress-bar" role="progressbar" style="width: 60%"
-                                            aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                    <h4 class="small font-weight-bold">Payout Details <span
-                                            class="float-right">80%</span></h4>
-                                    <div class="progress mb-4">
-                                        <div class="progress-bar bg-info" role="progressbar" style="width: 80%"
-                                            aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                    <h4 class="small font-weight-bold">Account Setup <span
-                                            class="float-right">Complete!</span></h4>
-                                    <div class="progress">
-                                        <div class="progress-bar bg-success" role="progressbar" style="width: 100%"
-                                            aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </div>
+                    <!-- End of Main Content -->
+
+                    <!-- Footer -->
+                    <footer class="sticky-footer bg-white">
+                        <div class="container my-auto">
+                            <div class="copyright text-center my-auto">
+                                <span>Copyright &copy; Your Website 2022</span>
                             </div>
-
-                            <!-- Color System -->
-                            <div class="row">
-                                <div class="col-lg-6 mb-4">
-                                    <div class="card bg-primary text-white shadow">
-                                        <div class="card-body">
-                                            Primary
-                                            <div class="text-white-50 small">#4e73df</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6 mb-4">
-                                    <div class="card bg-success text-white shadow">
-                                        <div class="card-body">
-                                            Success
-                                            <div class="text-white-50 small">#1cc88a</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6 mb-4">
-                                    <div class="card bg-info text-white shadow">
-                                        <div class="card-body">
-                                            Info
-                                            <div class="text-white-50 small">#36b9cc</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6 mb-4">
-                                    <div class="card bg-warning text-white shadow">
-                                        <div class="card-body">
-                                            Warning
-                                            <div class="text-white-50 small">#f6c23e</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6 mb-4">
-                                    <div class="card bg-danger text-white shadow">
-                                        <div class="card-body">
-                                            Danger
-                                            <div class="text-white-50 small">#e74a3b</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6 mb-4">
-                                    <div class="card bg-secondary text-white shadow">
-                                        <div class="card-body">
-                                            Secondary
-                                            <div class="text-white-50 small">#858796</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6 mb-4">
-                                    <div class="card bg-light text-black shadow">
-                                        <div class="card-body">
-                                            Light
-                                            <div class="text-black-50 small">#f8f9fc</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6 mb-4">
-                                    <div class="card bg-dark text-white shadow">
-                                        <div class="card-body">
-                                            Dark
-                                            <div class="text-white-50 small">#5a5c69</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
                         </div>
-
-                        <div class="col-lg-6 mb-4">
-
-                            <!-- Illustrations -->
-                            <div class="card shadow mb-4">
-                                <div class="card-header py-3">
-                                    <h6 class="m-0 font-weight-bold text-primary">Illustrations</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="text-center">
-                                        <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 25rem;"
-                                            src="img/undraw_posting_photo.svg" alt="...">
-                                    </div>
-                                    <p>Add some quality, svg illustrations to your project courtesy of <a
-                                            target="_blank" rel="nofollow" href="https://undraw.co/">unDraw</a>, a
-                                        constantly updated collection of beautiful svg images that you can use
-                                        completely free and without attribution!</p>
-                                    <a target="_blank" rel="nofollow" href="https://undraw.co/">Browse Illustrations on
-                                        unDraw &rarr;</a>
-                                </div>
-                            </div>
-
-                            <!-- Approach -->
-                            <div class="card shadow mb-4">
-                                <div class="card-header py-3">
-                                    <h6 class="m-0 font-weight-bold text-primary">Development Approach</h6>
-                                </div>
-                                <div class="card-body">
-                                    <p>SB Admin 2 makes extensive use of Bootstrap 4 utility classes in order to reduce
-                                        CSS bloat and poor page performance. Custom CSS classes are used to create
-                                        custom components and custom utility classes.</p>
-                                    <p class="mb-0">Before working with this theme, you should become familiar with the
-                                        Bootstrap framework, especially the utility classes.</p>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
+                    </footer>
+                    <!-- End of Footer -->
 
                 </div>
-                <!-- /.container-fluid -->
+                <!-- End of Content Wrapper -->
 
             </div>
-            <!-- End of Main Content -->
+            <!-- End of Page Wrapper -->
 
-            <!-- Footer -->
-            <footer class="sticky-footer bg-white">
-                <div class="container my-auto">
-                    <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; Your Website 2021</span>
+            <!-- Scroll to Top Button-->
+            <a class="scroll-to-top rounded" href="#page-top">
+                <i class="fas fa-angle-up"></i>
+            </a>
+
+            <!-- Logout Modal-->
+            <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">×</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">Select "Logout" below if you are ready to end your current session.
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                            <a class="btn btn-primary" href="login.html">Logout</a>
+                        </div>
                     </div>
                 </div>
-            </footer>
-            <!-- End of Footer -->
-
-        </div>
-        <!-- End of Content Wrapper -->
-
-    </div>
-    <!-- End of Page Wrapper -->
-
-    <!-- Scroll to Top Button-->
-    <a class="scroll-to-top rounded" href="#page-top">
-        <i class="fas fa-angle-up"></i>
-    </a>
-
-    <!-- Logout Modal-->
-    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-primary" href="login.html">Logout</a>
-                </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Bootstrap core JavaScript-->
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+            <!-- Bootstrap core JavaScript-->
+            <script src="vendor/jquery/jquery.min.js"></script>
+            <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Core plugin JavaScript-->
-    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+            <!-- Core plugin JavaScript-->
+            <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
 
-    <!-- Custom scripts for all pages-->
-    <script src="js/sb-admin-2.min.js"></script>
-
-    <!-- Page level plugins -->
-    <script src="vendor/chart.js/Chart.min.js"></script>
-
-    <!-- Page level custom scripts -->
-    <script src="js/demo/chart-area-demo.js"></script>
-    <script src="js/demo/chart-pie-demo.js"></script>
+            <!-- Custom scripts for all pages-->
+            <script src="js/sb-admin-2.min.js"></script>
 
 </body>
 

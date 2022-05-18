@@ -1,6 +1,13 @@
 <?php
 require("connection.php");
 session_start();
+$rowcount =0;
+if(isset($_SESSION['cid'])){
+  $cid=  $_SESSION['cid'];
+    $sql=mysqli_query($con,"SELECT cid FROM custorder where Oorc = 0 and cid =$cid ");
+    $rowcount = mysqli_num_rows( $sql );
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -24,24 +31,85 @@ session_start();
     <!-- light-slider-js --------------->
     <script src="js/lightslider.js"></script>
 
-<!-- CSS only -->
+    <!-- CSS only -->
 
     <!-- fav-icon -->
     <link rel="shortcut icon" href="images/fav-icon.png">
     <!-- Font Awesome Link -->
     <script src="https://kit.fontawesome.com/c8e4d183c2.js" crossorigin="anonymous"></script>
+    <style>
+        /* Dropdown Button */
+        .dropbtn {
+            display: inline-block;
+  border: 1px solid gray;
+  border-radius: 4px;
+  padding: 10px 30px 10px 20px;
+  background-color: #ffffff;
+  cursor: pointer;
+  white-space: nowrap;
+
+           
+        }
+        .dropbtn:after {
+        content: '';
+  position: absolute;
+  top: 50%;
+  right: 15px;
+  transform: translateY(-50%);
+  width: 0; 
+  height: 0; 
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid black;
+
+        }
+
+        /* The container <div> - needed to position the dropdown content */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        /* Dropdown Content (Hidden by Default) */
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f1f1f1;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        /* Links inside the dropdown */
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        /* Change color of dropdown links on hover */
+        .dropdown-content a:hover {
+            background-color: #ddd
+        }
+
+        /* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+        .show {
+            display: block;
+        }
+    </style>
 </head>
 
 <body>
     <!-- navigation bar -->
     <nav>
-       
- 
+
+
         <!-- menue bar -->
         <div class="navigation">
-           
 
-      
+
+
 
 
             <!-- logo -->
@@ -57,22 +125,56 @@ session_start();
 
             <!-- menue -->
             <ul class="menue">
-                <li><a href="#">Home</a></li>
+                <li><a href="index.php">Home</a></li>
                 <li><a href="#">Men</a>
                     <span class="sale-lable">Sale</span>
                 </li>
                 <li><a href="#">Women</a></li>
                 <li><a href="#">Kids</a></li>
-            
+
             </ul>
 
-            
-   
+            <div class="dropdown">
+                <button onclick="myFunction()" class="dropbtn">More</button>
+                <div id="myDropdown" class="dropdown-content">
+                  
+                    <?php
+                    if (!isset($_SESSION['cid'])) {
+                    ?>
+                          <a href="#" class="user">your order</a>
+
+                    <?php
+                    } else {
+                    ?>
+                    <a href="orderView.php">your order</a>
+                      
+                    <?php
+                    }
+                    ?>
+                    <?php
+                    if (!isset($_SESSION['cid'])) {
+                    ?>
+                        <a href="#" class="user">sell with shop-e</a>
+
+                    <?php
+                    } else {
+                    ?>
+                        <a href="req_shop.php">sell with shop-e</a>
+                    <?php
+                    }
+                    ?>
+                    <a href="logout.php">log out</a>
+                   
+
+
+                </div>
+            </div>
+
             <!-- right menue -->
             <div class="right-menue">
                 <!-- Shop -->
-                
-                    <span class="sale-lable">Sale</span>
+
+                <span class="sale-lable">Sale</span>
                 </li>
                 </a>
                 <!-- search -->
@@ -81,24 +183,24 @@ session_start();
                 </a>
                 <!-- user -->
                 <?php
-                if(!isset($_SESSION['cid'])){   
-                    ?>
+                if (!isset($_SESSION['cid'])) {
+                ?>
 
-             
-                <a href="#" class="user">
-                    <i class="far fa-user"></i>
-                </a>
+
+                    <a href="#" class="user">
+                        <i class="far fa-user"></i>
+                    </a>
 
 
                 <?php
-            }
-            // echo $_SESSION['cid'];
-            ?>
+                }
+                // echo $_SESSION['cid'];
+                ?>
                 <!-- cart-icon -->
-                <a href="#">
+                <a href="cart.php">
                     <i class="fas fa-shopping-cart">
                         <!-- number of products in cart -->
-                        <span class="num-cart-product">0</span>
+                        <span class="num-cart-product"><?php echo $rowcount ?></span>
                     </i>
                 </a>
             </div>
@@ -133,10 +235,10 @@ session_start();
             <strong>Log In</strong>
             <!-- inputs -->
             <form method="post" action="login.php">
-               
+
                 <input type="email" placeholder="Example@gmail.com" name="email" required>
-            
-              
+
+
                 <input type="password" placeholder="Enter Password" name="password" required>
                 <!-- submit button -->
                 <input type="submit" value="Log In">
@@ -166,7 +268,7 @@ session_start();
             <form method="post" action="res.php">
                 <!-- <input type="text" placeholder="Full Name" name="fullname" required> -->
                 <input type="email" placeholder="Example@gmail.com" name="email" required>
-                <input type="text" placeholder="OTP " name="otp" >
+                <input type="text" placeholder="OTP " name="otp">
                 <input type="password" placeholder="Enter Password" name="password" required>
                 <!-- submit button -->
                 <input type="submit" value="Sign Up">
@@ -187,6 +289,15 @@ session_start();
 
     </div>
     <!-- JavaScript Bundle with Popper -->
+    <script>
+        /* When the user clicks on the button,
+toggle between hiding and showing the dropdown content */
+        function myFunction() {
+            document.getElementById("myDropdown").classList.toggle("show");
+        }
 
+   
+    </script>
 </body>
+
 </html>

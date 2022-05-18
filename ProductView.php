@@ -2,9 +2,13 @@
 require("connection.php");
 include('header.php');
 $pid = $_GET['pid'];
-$sql=mysqli_query($con,"SELECT * FROM product where pid = $pid ");
+$_SESSION['pid']=$pid;
+$cid = $_SESSION['cid'];
+$sql=mysqli_query($con,"SELECT * FROM product where pid = $pid  ");
+$status=  mysqli_fetch_assoc(mysqli_query($con,"SELECT * FROM custorder where pid = $pid and OorC=0 and cid=$cid" )) == null ? 0: 1;
 $row=mysqli_fetch_assoc($sql);
 if($sql){
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -55,8 +59,23 @@ if($sql){
          <div class="qntBtn">    
              
             <div class="forFlex">   
-         <div class="qnt"><button>BUY NOW</button></div>
-         <div class="addToCart"><button>ADD TO cart</button></div>
+         <div class="qnt"><a href = "addresspage.html"><button>BUY NOW</button></a></div>
+         <?php 
+         if($status==0){
+             
+?>
+<div class="addToCart"><a href = "cartConfirm.php"><button>ADD TO CART</button></a></div>
+
+<?php
+         }else{
+?>
+ <div class="addToCart"><a href = "cart.php"><button>GO TO CART</button></a></div>
+
+            <?php
+         }
+         
+         ?>
+        
         </div>  
         </div>
          <div class="description"><?php echo $row['pdetails'] ?></div>
